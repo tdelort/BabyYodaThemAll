@@ -5,6 +5,9 @@ public class Player : NetworkBehaviour
 {
     [SerializeField] private float speed = 5f;
 
+    [SerializeField] private GameObject cursorPrefab;
+    GameObject cursor;
+
     public override void OnNetworkSpawn()
     {
         Debug.Log("Player started");
@@ -15,6 +18,12 @@ public class Player : NetworkBehaviour
             CameraController cameraController = camera.GetComponent<CameraController>();
             cameraController.target = transform;
             cameraController.offset = new Vector3(0, 10, -10);
+        }
+
+        if (NetworkManager.Singleton.IsServer)
+        {
+            cursor = Instantiate(cursorPrefab);
+            cursor.GetComponent<NetworkObject>().Spawn();
         }
     }
 
@@ -53,6 +62,7 @@ public class Player : NetworkBehaviour
         if (playerPlane.Raycast(ray, out hitdist))
         {
             Vector3 targetPoint = ray.GetPoint(hitdist);
+            MoveCursorServerRpc(targetPoint);
             Quaternion targetRotation = Quaternion.LookRotation(targetPoint - transform.position);
             return targetRotation;
         }
@@ -62,7 +72,6 @@ public class Player : NetworkBehaviour
     protected virtual void Action1()
     {
         Debug.Log("Action1");
-        
     }
 
     protected virtual void Action2()
@@ -75,5 +84,11 @@ public class Player : NetworkBehaviour
     {
         transform.position += movement;
         transform.rotation = rotation;
+    }
+
+    [ServerRpc]
+    public void MoveCursorServerRpc(Vector3 position)
+    {
+        cursor.transform.position = position;
     }
 }

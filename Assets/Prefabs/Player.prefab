@@ -94,6 +94,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 7.5
+  cursorPrefab: {fileID: 7045011338447737745, guid: b284300dcb23a284a8ee0037f459ea03, type: 3}
 --- !u!136 &6150512277977871526
 CapsuleCollider:
   m_ObjectHideFlags: 0
