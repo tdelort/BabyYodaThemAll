@@ -5,10 +5,21 @@ using UnityEngine;
 public class Abilities : MonoBehaviour
 {
     [SerializeField] private float speed = 5f;
+    
+    private GameObject sabreLancer = null;
+    private GameObject sabre = null;
     // Start is called before the first frame update
     void Start()
     {
-        
+        Camera camera = Camera.main;
+        camera.transform.rotation = Quaternion.Euler(45, 0, 0);
+        CameraController cameraController = camera.GetComponent<CameraController>();
+        cameraController.target = transform;
+        cameraController.offset = new Vector3(0, 10, -10);
+        sabre = transform.GetChild(0).transform.gameObject;
+        sabreLancer = transform.GetChild(1).transform.gameObject;
+        sabreLancer.SetActive(false);
+        sabre.SetActive(true);
     }
 
     // Update is called once per frame
@@ -26,7 +37,7 @@ public class Abilities : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0))
         {
-            Action1();
+            StartCoroutine(Action1());
         }
 
         if (Input.GetMouseButtonDown(1))
@@ -49,10 +60,14 @@ public class Abilities : MonoBehaviour
         }
         return Quaternion.Euler(0, 0, 0);
     }
-    protected virtual void Action1()
+    protected virtual IEnumerator Action1()
     {
         Debug.Log("Action1");
-
+        sabreLancer.SetActive(true);
+        sabre.SetActive(false);
+        yield return new WaitForSeconds(1f);
+        sabreLancer.SetActive(false);
+        sabre.SetActive(true);
     }
 
     protected virtual void Action2()
