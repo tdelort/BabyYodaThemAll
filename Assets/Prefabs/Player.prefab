@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 5545970665816437124}
   - component: {fileID: 5545970665816437125}
   - component: {fileID: 5545970665816437126}
+  - component: {fileID: 4605966235979099587}
   m_Layer: 0
   m_Name: Capsule
   m_TagString: Untagged
@@ -27,7 +28,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5545970665816437128}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5545970666084399241}
@@ -96,6 +97,22 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!54 &4605966235979099587
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5545970665816437128}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 80
+  m_CollisionDetection: 0
 --- !u!1 &5545970666084399244
 GameObject:
   m_ObjectHideFlags: 0
@@ -106,7 +123,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5545970666084399241}
   - component: {fileID: 5545970666084399243}
-  - component: {fileID: 16196692107727574}
+  - component: {fileID: 1182009469634251922}
   - component: {fileID: 8200160289864466566}
   m_Layer: 0
   m_Name: Player
@@ -146,7 +163,7 @@ MonoBehaviour:
   AlwaysReplicateAsRoot: 0
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
---- !u!114 &16196692107727574
+--- !u!114 &1182009469634251922
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -155,11 +172,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 5545970666084399244}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 54c9647dc784a46bca664910f182491e, type: 3}
+  m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   SyncPositionX: 1
-  SyncPositionY: 0
+  SyncPositionY: 1
   SyncPositionZ: 1
   SyncRotAngleX: 0
   SyncRotAngleY: 1
