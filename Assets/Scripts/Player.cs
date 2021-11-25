@@ -10,9 +10,11 @@ public class Player : NetworkBehaviour
         Debug.Log("Player started");
         if (IsLocalPlayer)
         {
-            var camera = Camera.main;
-            camera.transform.position = transform.position + new Vector3(0, 10, -10);
+            Camera camera = Camera.main;
             camera.transform.rotation = Quaternion.Euler(45, 0, 0);
+            CameraController cameraController = camera.GetComponent<CameraController>();
+            cameraController.target = transform;
+            cameraController.offset = new Vector3(0, 10, -10);
         }
     }
 
@@ -21,23 +23,57 @@ public class Player : NetworkBehaviour
     {
         if(IsLocalPlayer)
         {
-            // gathering inputs
+            // Translation
             Vector3 input = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
             Vector3 movement = input * speed * Time.deltaTime;
-            MovePlayerServerRpc(movement);
+
+            // Rotation
+            Quaternion rotation = ComputeRotation();
+
+            TransformPlayerServerRpc(movement, rotation);
 
             if (Input.GetMouseButtonDown(0))
             {
-                //Action1();
+                Action1();
             }
 
+            if (Input.GetMouseButtonDown(1))
+            {
+                Action2();
+            }
         }
     }
 
-    [ServerRpc]
-    public void MovePlayerServerRpc(Vector3 movement)
+    private Quaternion ComputeRotation()
     {
-        Debug.Log("MovePlayerServerRpc : " + movement);
+        Plane playerPlane = new Plane(Vector3.up, transform.position);
+
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        float hitdist = 0.0f;
+        if (playerPlane.Raycast(ray, out hitdist))
+        {
+            Vector3 targetPoint = ray.GetPoint(hitdist);
+            Quaternion targetRotation = Quaternion.LookRotation(targetPoint - transform.position);
+            return targetRotation;
+        }
+        return Quaternion.Euler(0, 0, 0);
+    }
+
+    protected virtual void Action1()
+    {
+        Debug.Log("Action1");
+        
+    }
+
+    protected virtual void Action2()
+    {
+        Debug.Log("Action2");
+    }
+
+    [ServerRpc]
+    public void TransformPlayerServerRpc(Vector3 movement, Quaternion rotation)
+    {
         transform.position += movement;
+        transform.rotation = rotation;
     }
 }
