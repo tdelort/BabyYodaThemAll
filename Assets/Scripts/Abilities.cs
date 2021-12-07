@@ -7,7 +7,9 @@ public class Abilities : MonoBehaviour
     [SerializeField] private float speed = 5f;
     
     private GameObject sabreLancer = null;
+    private GameObject ondes = null;
     private GameObject sabre = null;
+    private GameObject force = null;
     // Start is called before the first frame update
     void Start()
     {
@@ -18,7 +20,11 @@ public class Abilities : MonoBehaviour
         cameraController.offset = new Vector3(0, 10, -10);
         sabre = transform.GetChild(0).transform.gameObject;
         sabreLancer = transform.GetChild(1).transform.gameObject;
+        ondes = transform.GetChild(2).transform.gameObject;
+        force = transform.GetChild(3).transform.gameObject;
         sabreLancer.SetActive(false);
+        ondes.SetActive(false);
+        force.SetActive(false);
         sabre.SetActive(true);
     }
 
@@ -42,7 +48,12 @@ public class Abilities : MonoBehaviour
 
         if (Input.GetMouseButtonDown(1))
         {
-            Action2();
+            StartCoroutine(Action2());
+        }
+
+        if (Input.GetMouseButtonDown(2))
+        {
+            StartCoroutine(Action3());
         }
     }
 
@@ -70,8 +81,19 @@ public class Abilities : MonoBehaviour
         sabre.SetActive(true);
     }
 
-    protected virtual void Action2()
+    protected virtual IEnumerator Action2()
     {
         Debug.Log("Action2");
+        ondes.SetActive(true);
+        yield return new WaitForSeconds(5f);
+        ondes.SetActive(false);
+    }
+
+    protected virtual IEnumerator Action3()
+    {
+        Debug.Log("Action3");
+        force.SetActive(true);
+        yield return new WaitForSeconds(0.3f);
+        force.SetActive(false);
     }
 }
