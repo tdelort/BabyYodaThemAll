@@ -7,7 +7,6 @@ public class Player : NetworkBehaviour
 
     [SerializeField] private GameObject cursorPrefab;
     GameObject cursor;
-
     public override void OnNetworkSpawn()
     {
         Debug.Log("Player started");
@@ -25,6 +24,11 @@ public class Player : NetworkBehaviour
             cursor = Instantiate(cursorPrefab);
             cursor.GetComponent<NetworkObject>().Spawn();
         }
+
+        InitAction1();
+        InitAction2();
+        InitAction3();
+
     }
 
     // Update is called once per frame
@@ -41,14 +45,19 @@ public class Player : NetworkBehaviour
 
             TransformPlayerServerRpc(movement, rotation);
 
-            if (Input.GetMouseButtonDown(0))
+            if (Input.GetButtonDown("Action1"))
             {
                 Action1();
             }
 
-            if (Input.GetMouseButtonDown(1))
+            if (Input.GetButtonDown("Action2"))
             {
                 Action2();
+            }
+
+            if (Input.GetButtonDown("Action3"))
+            {
+                Action3();
             }
         }
     }
@@ -71,12 +80,32 @@ public class Player : NetworkBehaviour
 
     protected virtual void Action1()
     {
-        Debug.Log("Action1");
+        Debug.Log("Player.Action1");
     }
 
     protected virtual void Action2()
     {
-        Debug.Log("Action2");
+        Debug.Log("Player.Action2");
+    }
+
+    protected virtual void Action3()
+    {
+        Debug.Log("Player.Action3");
+    }
+
+    protected virtual void InitAction1()
+    {
+        Debug.Log("Player.InitAction1");
+    }
+
+    protected virtual void InitAction2()
+    {
+        Debug.Log("Player.InitAction2");
+    }
+
+    protected virtual void InitAction3()
+    {
+        Debug.Log("Player.InitAction3");
     }
 
     [ServerRpc]

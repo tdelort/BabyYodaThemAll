@@ -1,19 +1,23 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Netcode;
 
-public class Sabre : MonoBehaviour
+public class Sabre : NetworkBehaviour
 {
     [SerializeField] private float speed = 1f;
-    // Start is called before the first frame update
-    void Start()
+
+    public void Rotate()
     {
-        
+        StartCoroutine(RotateCoroutine());
     }
 
-    // Update is called once per frame
-    void Update()
+    private IEnumerator RotateCoroutine()
     {
-        transform.Rotate(0, speed*360*Time.deltaTime, 0, Space.Self);
+        while(true)
+        {
+            transform.Rotate(0, speed*360*Time.deltaTime, 0, Space.Self);
+            yield return null;
+        }
     }
 }
