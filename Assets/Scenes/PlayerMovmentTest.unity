@@ -535,8 +535,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3713a784298260e46895a7f757978ca5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyPrefab: {fileID: 3423993933006639083, guid: 180616ebf67b4d74bbd911c2d7defeec, type: 3}
-  spawnDelay: 3
+  enemy1Prefab: {fileID: 3423993933006639083, guid: 180616ebf67b4d74bbd911c2d7defeec, type: 3}
+  enemy2Prefab: {fileID: 848170519657244845, guid: cc6a72c43ca2fde408047cb5d018ddbb, type: 3}
+  spawnDelay: 1.5
 --- !u!1001 &503684236
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -682,6 +683,11 @@ MonoBehaviour:
       OverridingTargetPrefab: {fileID: 0}
     - Override: 0
       Prefab: {fileID: 3423993933006639083, guid: 180616ebf67b4d74bbd911c2d7defeec, type: 3}
+      SourcePrefabToOverride: {fileID: 0}
+      SourceHashToOverride: 0
+      OverridingTargetPrefab: {fileID: 0}
+    - Override: 0
+      Prefab: {fileID: 848170519657244845, guid: cc6a72c43ca2fde408047cb5d018ddbb, type: 3}
       SourcePrefabToOverride: {fileID: 0}
       SourceHashToOverride: 0
       OverridingTargetPrefab: {fileID: 0}

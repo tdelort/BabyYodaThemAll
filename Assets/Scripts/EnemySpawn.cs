@@ -4,8 +4,9 @@ using Unity.Netcode;
 
 public class EnemySpawn : MonoBehaviour
 {
-    [SerializeField] GameObject enemyPrefab;
-    [SerializeField] float spawnDelay = 3f;
+    [SerializeField] GameObject enemy1Prefab;
+    [SerializeField] GameObject enemy2Prefab;
+    [SerializeField] float spawnDelay = 1.5f;
 
     // Start is called before the first frame update
     void Start()
@@ -15,11 +16,13 @@ public class EnemySpawn : MonoBehaviour
 
     IEnumerator SpawnEnemy()
     {
+        int i = 0;
         while (true)
         {
             if(NetworkManager.Singleton.IsServer)
             {
-                var enemy = Instantiate(enemyPrefab, transform.position, Quaternion.identity);
+                i = 1 - i;
+                var enemy = Instantiate(i == 0 ? enemy1Prefab : enemy2Prefab, transform.position, Quaternion.identity);
                 enemy.GetComponent<NetworkObject>().Spawn();
             }
             yield return new WaitForSeconds(spawnDelay);

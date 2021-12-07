@@ -39,10 +39,12 @@ public class Enemy : NetworkBehaviour
             agent.updatePosition = false;
 
             if (enemyType == 0) {
+                health.Value = 2;
                 moveName = "Jump";
                 attackName = "Tongue";
                 dieName = "Smashed";
             } else if (enemyType == 1) {
+                health.Value = 5;
                 moveName = "walk";
                 attackName = "attack";
                 dieName = "die";
