@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 
@@ -20,4 +19,5 @@ public class Sabre : NetworkBehaviour
             yield return null;
         }
     }
+
 }

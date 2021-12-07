@@ -50,7 +50,10 @@ public class BabyYoda : Player
         if(NetworkManager.Singleton.IsServer)
         {
             sabreAttack.GetComponent<NetworkObject>().Spawn();
-            //sabreAttack.GetComponent<NetworkObject>().NetworkHide(OwnerClientId);
+
+            // For debugging
+            // if(!NetworkManager.Singleton.IsHost)
+            //    sabreAttack.GetComponent<NetworkObject>().NetworkHide(OwnerClientId);
         }
 
         sabreAttack.transform.SetParent(transform);
