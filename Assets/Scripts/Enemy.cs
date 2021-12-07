@@ -1,15 +1,24 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using System;
+using Unity.Netcode;
 
-public class Enemy : MonoBehaviour
-{
+public class Enemy : NetworkBehaviour
+{   
+    // Highlight and taking damages
+    [SerializeField] Material hitMaterial;
+    Material originalMaterial;
+    private NetworkVariable<bool> highlighted = new NetworkVariable<bool>(false);
+    private NetworkVariable<int> health = new NetworkVariable<int>(2);
+    private Coroutine hlCoroutine;
+    [SerializeField] Renderer bodyRenderer;
 
+    // Movments and animations
     public NavMeshAgent agent;
     public Animator animator;
     public int enemyType;
+
     private Player[] targets;
     private Vector2 smoothDeltaPosition = Vector2.zero;
     private Vector2 velocity = Vector2.zero;
@@ -21,87 +30,119 @@ public class Enemy : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        targets = GameObject.FindObjectsOfType<Player>();
-        agent.updatePosition = false;
+        Debug.Assert(bodyRenderer != null);
+        Debug.Assert(hitMaterial != null);
 
-        if (enemyType == 0) {
-            moveName = "Jump";
-            attackName = "Tongue";
-            dieName = "Smashed";
-        } else if (enemyType == 1) {
-            moveName = "walk";
-            attackName = "attack";
-            dieName = "die";
+        if(NetworkManager.Singleton.IsServer)
+        {
+            targets = GameObject.FindObjectsOfType<Player>();
+            agent.updatePosition = false;
+
+            if (enemyType == 0) {
+                moveName = "Jump";
+                attackName = "Tongue";
+                dieName = "Smashed";
+            } else if (enemyType == 1) {
+                moveName = "walk";
+                attackName = "attack";
+                dieName = "die";
+            }
         }
+
+        originalMaterial = bodyRenderer.material;
+        highlighted.OnValueChanged += OnHighlighted;
     }
 
     void Update()
     {
-        if (targets.Length == 0) {
-            targets = GameObject.FindObjectsOfType<Player>();
-        }
-        else {
-            agent.destination = targets[0].transform.position;
+        // Server has auth on ennemies
+        if(NetworkManager.Singleton.IsServer)
+        {
+            // ###### STATS ######
 
-            Vector3 worldDeltaPosition = agent.nextPosition - transform.position;
-
-            // Map 'worldDeltaPosition' to local space
-            float dx = Vector3.Dot (transform.right, worldDeltaPosition);
-            float dy = Vector3.Dot (transform.forward, worldDeltaPosition);
-            Vector2 deltaPosition = new Vector2 (dx, dy);
-
-            // Low-pass filter the deltaMove
-            float smooth = Mathf.Min(1.0f, Time.deltaTime/0.15f);
-            smoothDeltaPosition = Vector2.Lerp (smoothDeltaPosition, deltaPosition, smooth);
-
-            // Update velocity if time advances
-            if (Time.deltaTime > 1e-5f) {
-                velocity = smoothDeltaPosition / Time.deltaTime;
+            if(health.Value <= 0)
+            {
+                animator.SetTrigger(dieName);
+                GetComponent<NetworkObject>().Despawn();
+                gameObject.SetActive(false);
+                return;
             }
 
-            if (agent.remainingDistance > agent.stoppingDistance) {
-                animator.Play(moveName, -1);
-                //animator.SetFloat ("velx", velocity.x);
-                //animator.SetFloat ("vely", velocity.y);
-            } else {
-                animator.Play(attackName, -1);
+            // ###### MOVEMENTS ######
+            if (targets.Length == 0) {
+                targets = GameObject.FindObjectsOfType<Player>();
+            }
+            else {
+                agent.destination = targets[0].transform.position;
+
+                Vector3 worldDeltaPosition = agent.nextPosition - transform.position;
+
+                // Map 'worldDeltaPosition' to local space
+                float dx = Vector3.Dot (transform.right, worldDeltaPosition);
+                float dy = Vector3.Dot (transform.forward, worldDeltaPosition);
+                Vector2 deltaPosition = new Vector2 (dx, dy);
+
+                // Low-pass filter the deltaMove
+                float smooth = Mathf.Min(1.0f, Time.deltaTime/0.15f);
+                smoothDeltaPosition = Vector2.Lerp (smoothDeltaPosition, deltaPosition, smooth);
+
+                // Update velocity if time advances
+                if (Time.deltaTime > 1e-5f) {
+                    velocity = smoothDeltaPosition / Time.deltaTime;
+                }
+
+                if (agent.remainingDistance > agent.stoppingDistance) {
+                    animator.Play(moveName, -1);
+                    //animator.SetFloat ("velx", velocity.x);
+                    //animator.SetFloat ("vely", velocity.y);
+                } else {
+                    animator.Play(attackName, -1);
+                    // HANDLE ATTACK HERE
+                }
             }
         }
     }
 
     void OnAnimatorMove ()
     {
-        // Update position to agent position
-        transform.position = agent.nextPosition;
+        if(NetworkManager.Singleton.IsServer)
+        {
+            // Update position to agent position
+            transform.position = agent.nextPosition;
+        }
     }
 
-    // Update is called once per frame
-    /*void Update()
+    private void OnHighlighted(bool before, bool after)
     {
-        Debug.Log("Ecart de pos: " + (Math.Abs(agent.nextPosition.y - lastY)));
-        if (targets.Length == 0) {
-            targets = GameObject.FindObjectsOfType<Player>();
-        }
-        else {
-            if (Math.Abs(agent.nextPosition.y - lastY) > 0.0001f) {
-                agent.SetDestination(targets[0].transform.position);
-                Debug.Log("Moving");
-            } else {
-                agent.isStopped = true;
-                if (currentTime < waitingTime) {
-                    currentTime += Time.deltaTime;
-                    Debug.Log("Time remaining : " + (waitingTime - currentTime));
-                } else {
-                    agent.enabled = false;
-                    body.isKinematic = false;
-                    body.useGravity = true;
-                    body.AddRelativeForce(new Vector3(0, 5f, 0), ForceMode.Impulse);
-                    //agent.Warp(new Vector3(agent.nextPosition.x, agent.nextPosition.y+1, agent.nextPosition.z));
-                    Debug.Log("Trying to jump");
-                }
+        //Debug.LogError("Highlighted: " + after);
+        if (after)
+            bodyRenderer.material = hitMaterial;
+        else
+            bodyRenderer.material = originalMaterial;
+    }
+
+    public void OnTriggerEnter(Collider other)
+    {
+        // Gestion des collisions entre les attaques et les ennemis
+        // Dans le serveur pour éviter de faire des collisions 
+        // sur des ennemis qui sont détruits ?
+        if(NetworkManager.Singleton.IsServer)
+        {
+            if (other.tag == "PlayerAttack")
+            {
+                health.Value--;
+                if(hlCoroutine != null)
+                    StopCoroutine(hlCoroutine);
+                StartCoroutine(HighLight()); 
             }
         }
-        lastY = agent.nextPosition.y;
-    }*/
+    }
+
+    private IEnumerator HighLight()
+    {
+        highlighted.Value = true;
+        yield return new WaitForSeconds(0.1f);
+        highlighted.Value = false;
+    }
 
 }

@@ -8,7 +8,7 @@ public class BabyYoda : Player
     [SerializeField] private GameObject cosmeticSabre;
     [SerializeField] private Vector3 sabreOffset;
 
-    bool isUsingAction1 = false;
+    NetworkVariable<bool> isUsingAction1 = new NetworkVariable<bool>(false);
 
     // ############ ACTION 1 ############
     protected override void InitAction1()
@@ -17,11 +17,18 @@ public class BabyYoda : Player
         Debug.Assert(cosmeticSabre != null);
 
         cosmeticSabre.SetActive(true);
+        isUsingAction1.OnValueChanged += OnUsingAction1;
     }
+
+    private void OnUsingAction1(bool before, bool after)
+    {
+        cosmeticSabre.SetActive(!after);
+    }
+
     override protected void Action1()
     {
         Debug.Log("BabyYoda.Action1");
-        if(isUsingAction1)
+        if(isUsingAction1.Value)
             return;
 
         if(IsLocalPlayer)
@@ -43,7 +50,7 @@ public class BabyYoda : Player
     protected virtual IEnumerator Action1Coroutine()
     {
         Debug.Log("BabyYoda.Action1Coroutine");
-        isUsingAction1 = true;
+        isUsingAction1.Value = true;
 
         GameObject sabreAttack = Instantiate(sabreAttackPrefab, Vector3.zero, transform.rotation);
 
@@ -61,9 +68,7 @@ public class BabyYoda : Player
         sabreAttack.GetComponent<Sabre>().Rotate();
         sabreAttack.transform.GetChild(0).GetComponent<Sabre>().Rotate();
 
-        cosmeticSabre.SetActive(false);
         yield return new WaitForSeconds(1f);
-        cosmeticSabre.SetActive(true);
 
         sabreAttack.SetActive(false);
 
@@ -76,7 +81,7 @@ public class BabyYoda : Player
         }
         Destroy(sabreAttack);
 
-        isUsingAction1 = false;
+        isUsingAction1.Value = false;
     }
 
     // ############ ACTION 2 ############
