@@ -17,17 +17,14 @@ public class Player : NetworkBehaviour
             CameraController cameraController = camera.GetComponent<CameraController>();
             cameraController.target = transform;
             cameraController.offset = new Vector3(0, 10, -10);
+            cursor = Instantiate(cursorPrefab);
         }
 
-        if (NetworkManager.Singleton.IsServer)
-        {
-            cursor = Instantiate(cursorPrefab);
-            cursor.GetComponent<NetworkObject>().Spawn();
-        }
 
         InitAction1();
         InitAction2();
         InitAction3();
+        InitAction4();
 
     }
 
@@ -59,6 +56,11 @@ public class Player : NetworkBehaviour
             {
                 Action3();
             }
+
+            if (Input.GetButtonDown("Action4"))
+            {
+                Action4();
+            }
         }
     }
 
@@ -71,7 +73,7 @@ public class Player : NetworkBehaviour
         if (playerPlane.Raycast(ray, out hitdist))
         {
             Vector3 targetPoint = ray.GetPoint(hitdist);
-            MoveCursorServerRpc(targetPoint);
+            cursor.transform.position = targetPoint;
             Quaternion targetRotation = Quaternion.LookRotation(targetPoint - transform.position);
             return targetRotation;
         }
@@ -93,6 +95,11 @@ public class Player : NetworkBehaviour
         Debug.Log("Player.Action3");
     }
 
+    protected virtual void Action4()
+    {
+        Debug.Log("Player.Action4");
+    }
+
     protected virtual void InitAction1()
     {
         Debug.Log("Player.InitAction1");
@@ -108,6 +115,11 @@ public class Player : NetworkBehaviour
         Debug.Log("Player.InitAction3");
     }
 
+    protected virtual void InitAction4()
+    {
+        Debug.Log("Player.InitAction4");
+    }
+
     [ServerRpc]
     public void TransformPlayerServerRpc(Vector3 movement, Quaternion rotation)
     {
@@ -115,9 +127,4 @@ public class Player : NetworkBehaviour
         transform.rotation = rotation;
     }
 
-    [ServerRpc]
-    public void MoveCursorServerRpc(Vector3 position)
-    {
-        cursor.transform.position = position;
-    }
 }

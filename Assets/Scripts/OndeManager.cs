@@ -1,19 +1,25 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Netcode;
 
-public class OndeManager : MonoBehaviour
+public class OndeManager : NetworkBehaviour
 {
     [SerializeField] private Onde onde1 = null;
     [SerializeField] private Onde onde2 = null;
     [SerializeField] private Onde onde3 = null;
 
+
+
     private void OnEnable()
     {
-        onde1.gameObject.SetActive(false);
-        onde2.gameObject.SetActive(false);
-        onde3.gameObject.SetActive(false);
-        StartCoroutine(LaunchWaves());
+        if(NetworkManager.Singleton.IsServer)
+        {
+            onde1.gameObject.SetActive(false);
+            onde2.gameObject.SetActive(false);
+            onde3.gameObject.SetActive(false);
+            StartCoroutine(LaunchWaves());
+        }
     }
 
     private IEnumerator LaunchWaves()
