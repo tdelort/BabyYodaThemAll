@@ -16,6 +16,7 @@ public class Player : NetworkBehaviour
     private NetworkVariable<bool> highlighted = new NetworkVariable<bool>(false);
     protected const int maxHealth = 30;
     private NetworkVariable<int> health = new NetworkVariable<int>(maxHealth);
+    private NetworkVariable<uint> kills = new NetworkVariable<uint>();
     private Coroutine hlCoroutine;
     [SerializeField] Slider healthBar;
 
@@ -28,6 +29,9 @@ public class Player : NetworkBehaviour
     [SerializeField] private Image action2cooldown;
     [SerializeField] private Image action3cooldown;
 
+    [SerializeField] private Text killsText;
+    [SerializeField] private Text itemsText;
+
     void Start()
     {
         Debug.Assert(rend != null);
@@ -37,10 +41,8 @@ public class Player : NetworkBehaviour
         healthBar.value = 1;
         health.OnValueChanged += OnHealth;
 
-        isUsingAction1.OnValueChanged += OnAction1;
-        isUsingAction2.OnValueChanged += OnAction2;
-        isUsingAction3.OnValueChanged += OnAction3;
-    }
+        kills.OnValueChanged += OnKills;
+    } 
 
     private void OnAction1(bool before, bool after)
     {
@@ -72,6 +74,11 @@ public class Player : NetworkBehaviour
         healthBar.value = (float)health.Value / (float)maxHealth;
     }
 
+    private void OnKills(uint before, uint after)
+    {   
+        killsText.text = after.ToString("D4");
+    }
+
     public override void OnNetworkSpawn()
     {
         Debug.Log("Player started");
@@ -81,8 +88,15 @@ public class Player : NetworkBehaviour
             camera.transform.rotation = Quaternion.Euler(45, 0, 0);
             CameraController cameraController = camera.GetComponent<CameraController>();
             cameraController.target = transform;
-            cameraController.offset = new Vector3(0, 10, -10);
+            cameraController.offset = new Vector3(0, 15, -15);
             cursor = Instantiate(cursorPrefab);
+
+            action1cooldown.gameObject.SetActive(true);
+            action2cooldown.gameObject.SetActive(true);
+            action3cooldown.gameObject.SetActive(true);
+            isUsingAction1.OnValueChanged += OnAction1;
+            isUsingAction2.OnValueChanged += OnAction2;
+            isUsingAction3.OnValueChanged += OnAction3;
         }
 
 
@@ -219,5 +233,12 @@ public class Player : NetworkBehaviour
             rend.material = hitMat;
         else
             rend.material = oldMat;
+    }
+
+    //########## GAINING POINTS ##########
+    public void AddKill()
+    {
+        Debug.Log("Player.AddScore");
+        kills.Value++;
     }
 }

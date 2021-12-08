@@ -166,45 +166,25 @@ public class Enemy : NetworkBehaviour
         if(NetworkManager.Singleton.IsServer)
         {
             if (other.tag == "PlayerAttack")
-            {
                 health.Value--;
-                if(health.Value <= 0)
-                    return;
-
-                if(hlCoroutine != null)
-                    StopCoroutine(hlCoroutine);
-                StartCoroutine(HighLight()); 
-            }
             else if(other.tag == "SabreAttack")
-            {
                 health.Value -= 2;
-                if(health.Value <= 0)
-                    return;
-
-                if(hlCoroutine != null)
-                    StopCoroutine(hlCoroutine);
-                StartCoroutine(HighLight()); 
-            }
             else if(other.tag == "PushAttack")
-            {
                 health.Value -= 2;
-                if(health.Value <= 0)
-                    return;
-
-                if(hlCoroutine != null)
-                    StopCoroutine(hlCoroutine);
-                StartCoroutine(HighLight()); 
-            }
             else if(other.tag == "OndeAttack")
-            {
                 health.Value -= 5;
-                if(health.Value <= 0)
-                    return;
-                   
-                if(hlCoroutine != null)
-                    StopCoroutine(hlCoroutine);
-                StartCoroutine(HighLight()); 
+            else
+                return;
+
+            if(health.Value <= 0)
+            {
+                other.gameObject.GetComponentInParent<Player>().AddKill();
+                return;
             }
+
+            if(hlCoroutine != null)
+                StopCoroutine(hlCoroutine);
+            StartCoroutine(HighLight()); 
         }
     }
 
