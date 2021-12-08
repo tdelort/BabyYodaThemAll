@@ -5,7 +5,8 @@ using UnityEngine;
 public class Abilities : MonoBehaviour
 {
     [SerializeField] private float speed = 5f;
-    
+    [SerializeField] private Basique sabreBasique;
+
     private GameObject sabreLancer = null;
     private GameObject ondes = null;
     private GameObject sabre = null;
@@ -43,7 +44,8 @@ public class Abilities : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0))
         {
-            StartCoroutine(Action1());
+            Debug.Log("attack");
+            StartCoroutine(sabreBasique.Attack());
         }
 
         if (Input.GetMouseButtonDown(1))
