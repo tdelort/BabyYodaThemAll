@@ -7,14 +7,18 @@ public class BabyYoda : Player
     [SerializeField] private GameObject cosmeticSabre;
 
     // ACTION 1
-    [SerializeField] private GameObject sabreAttackPrefab;
-    [SerializeField] private Vector3 sabreOffset;
+    [SerializeField] private GameObject sabreAttackObject;
+    //[SerializeField] private Vector3 sabreOffset;
 
     // ACTION 2
     [SerializeField] private GameObject ondeObject;
 
+    // ACTION 3
+    [SerializeField] private GameObject pushObject;
+
     NetworkVariable<bool> isUsingAction1 = new NetworkVariable<bool>(false);
     NetworkVariable<bool> isUsingAction2 = new NetworkVariable<bool>(false);
+    NetworkVariable<bool> isUsingAction3 = new NetworkVariable<bool>(false);
     NetworkVariable<bool> hideSabre = new NetworkVariable<bool>(false);
 
     public override void OnNetworkSpawn()
@@ -34,7 +38,7 @@ public class BabyYoda : Player
     // Competence 1 : Sabre throw
     protected override void InitAction1()
     {
-        Debug.Assert(sabreAttackPrefab != null);
+        Debug.Assert(sabreAttackObject != null);
     }
 
     override protected void Action1()
@@ -56,36 +60,30 @@ public class BabyYoda : Player
         StartCoroutine(Action1Coroutine());
     }
 
+    [ClientRpc]
+    public void SetActiveSabreClientRpc(bool active)
+    {
+        Debug.Log("BabyYoda.SetActiveSabreClientRpc");
+        sabreAttackObject.SetActive(active);
+    }
+
     // Launch only in server
     protected virtual IEnumerator Action1Coroutine()
     {
         Debug.Log("BabyYoda.Action1Coroutine");
         isUsingAction1.Value = true;
         hideSabre.Value = true;
-
-
-        GameObject sabreAttack = Instantiate(sabreAttackPrefab, Vector3.zero, transform.rotation);
-        sabreAttack.GetComponent<NetworkObject>().Spawn();
-
-        // For debugging
-        // if(!NetworkManager.Singleton.IsHost)
-        //    sabreAttack.GetComponent<NetworkObject>().NetworkHide(OwnerClientId);
-
-        sabreAttack.transform.SetParent(transform);
-        sabreAttack.transform.localPosition = sabreOffset;
-        sabreAttack.GetComponent<Sabre>().Rotate();
-        sabreAttack.transform.GetChild(0).GetComponent<Sabre>().Rotate();
+        sabreAttackObject.SetActive(true);
+        SetActiveSabreClientRpc(true);
 
         yield return new WaitForSeconds(1f);
 
-        sabreAttack.SetActive(false);
+        sabreAttackObject.SetActive(false);
+        SetActiveSabreClientRpc(false);
         hideSabre.Value = false;
 
         // Add aditional delay to prevent spamming here
         yield return new WaitForSeconds(0.1f);
-
-        sabreAttack.GetComponent<NetworkObject>().Despawn();
-        Destroy(sabreAttack);
 
         isUsingAction1.Value = false;
     }
@@ -113,7 +111,7 @@ public class BabyYoda : Player
     [ServerRpc]
     public void Action2ServerRpc()
     {
-        Debug.Log("BabyYoda.Action1ServerRpc");
+        Debug.Log("BabyYoda.Action2ServerRpc");
         StartCoroutine(Action2Coroutine());
     }
 
@@ -143,9 +141,53 @@ public class BabyYoda : Player
 
     // ############ ACTION 3 ############
     // Competence 2 : Linear shockwave
+    protected override void InitAction3()
+    {
+        Debug.Assert(pushObject != null);
+        pushObject.SetActive(false);
+    }
+
     override protected void Action3()
     {
         Debug.Log("BabyYoda.Action3");
+        if(isUsingAction3.Value)
+            return;
+
+        if(IsLocalPlayer)
+        {
+            Action3ServerRpc();
+        }
+    }
+
+    [ServerRpc]
+    public void Action3ServerRpc()
+    {
+        Debug.Log("BabyYoda.Action3ServerRpc");
+        StartCoroutine(Action3Coroutine());
+    }
+
+    [ClientRpc]
+    public void SetActivePushClientRpc(bool active)
+    {
+        pushObject.SetActive(active);
+    }
+
+    // Only in server
+    private IEnumerator Action3Coroutine()
+    {
+        Debug.Log("BabyYoda.Action3Coroutine");
+        isUsingAction3.Value = true;
+        pushObject.SetActive(true);
+        SetActivePushClientRpc(true);
+
+        yield return new WaitForSeconds(0.3f);
+
+        pushObject.SetActive(false);
+        SetActivePushClientRpc(false);
+
+        // Add aditional delay to prevent spamming here
+
+        isUsingAction3.Value = false;
     }
 
     // ############ ACTION 4 ############

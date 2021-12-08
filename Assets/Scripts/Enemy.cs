@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UI;
 using System;
 using Unity.Netcode;
 
@@ -11,8 +12,11 @@ public class Enemy : NetworkBehaviour
     Material originalMaterial;
     private NetworkVariable<bool> highlighted = new NetworkVariable<bool>(false);
     private NetworkVariable<int> health = new NetworkVariable<int>(2);
+    private int maxHealth = 2;
     private Coroutine hlCoroutine;
     [SerializeField] Renderer bodyRenderer;
+    [SerializeField] Slider healthBar;
+    bool isAttacking = false;
 
     // Movments and animations
     public NavMeshAgent agent;
@@ -28,7 +32,7 @@ public class Enemy : NetworkBehaviour
     
 
     // Start is called before the first frame update
-    void Start()
+    public override void OnNetworkSpawn()
     {
         Debug.Assert(bodyRenderer != null);
         Debug.Assert(hitMaterial != null);
@@ -37,22 +41,42 @@ public class Enemy : NetworkBehaviour
         {
             targets = GameObject.FindObjectsOfType<Player>();
             agent.updatePosition = false;
-
-            if (enemyType == 0) {
-                health.Value = 2;
-                moveName = "Jump";
-                attackName = "Tongue";
-                dieName = "Smashed";
-            } else if (enemyType == 1) {
-                health.Value = 5;
-                moveName = "walk";
-                attackName = "attack";
-                dieName = "die";
-            }
         }
 
+        if (enemyType == 0) {
+            if(NetworkManager.Singleton.IsServer)
+                health.Value = 2;
+            maxHealth = 2;
+            moveName = "Jump";
+            attackName = "Tongue";
+            dieName = "Smashed";
+        } else if (enemyType == 1) {
+            if(NetworkManager.Singleton.IsServer)
+                health.Value = 5;
+            maxHealth = 5;
+            moveName = "walk";
+            attackName = "attack";
+            dieName = "die";
+        }
+
+        healthBar.value = 1;
+        health.OnValueChanged += OnHealth;
         originalMaterial = bodyRenderer.material;
         highlighted.OnValueChanged += OnHighlighted;
+    }
+
+    private void OnHealth(int before, int after)
+    {
+        if(health.Value <= 0)
+        {
+            if(NetworkManager.Singleton.IsServer)
+            {
+                GetComponent<NetworkObject>().Despawn();
+            }
+            gameObject.SetActive(false);
+        }
+
+        healthBar.value = (float)health.Value / (float)maxHealth;
     }
 
     void Update()
@@ -60,15 +84,6 @@ public class Enemy : NetworkBehaviour
         // Server has auth on ennemies
         if(NetworkManager.Singleton.IsServer)
         {
-            // ###### STATS ######
-
-            if(health.Value <= 0)
-            {
-                animator.SetTrigger(dieName);
-                GetComponent<NetworkObject>().Despawn();
-                gameObject.SetActive(false);
-                return;
-            }
 
             // ###### MOVEMENTS ######
             if (targets.Length == 0) {
@@ -98,11 +113,32 @@ public class Enemy : NetworkBehaviour
                     //animator.SetFloat ("velx", velocity.x);
                     //animator.SetFloat ("vely", velocity.y);
                 } else {
-                    animator.Play(attackName, -1);
-                    // HANDLE ATTACK HERE
+                    if(!isAttacking)
+                    {
+                        animator.Play(attackName, -1);
+                        // HANDLE ATTACK HERE
+                        StartCoroutine(Attack());
+                    }
                 }
             }
         }
+    }
+
+    IEnumerator Attack()
+    {
+        isAttacking = true;
+        yield return new WaitForSeconds(0.2f);
+        Physics.SphereCast(transform.position, 0.5f, transform.forward, out RaycastHit hit, 1.0f);
+        if(hit.collider != null)
+        {
+            if(hit.collider.gameObject.tag == "Player")
+            {
+                hit.collider.gameObject.GetComponent<Player>().TakeDamage(1);
+            }
+        }
+
+        yield return new WaitForSeconds(0.2f);
+        isAttacking = false;
     }
 
     void OnAnimatorMove ()
@@ -133,6 +169,39 @@ public class Enemy : NetworkBehaviour
             if (other.tag == "PlayerAttack")
             {
                 health.Value--;
+                if(health.Value <= 0)
+                    return;
+
+                if(hlCoroutine != null)
+                    StopCoroutine(hlCoroutine);
+                StartCoroutine(HighLight()); 
+            }
+            else if(other.tag == "SabreAttack")
+            {
+                health.Value -= 2;
+                if(health.Value <= 0)
+                    return;
+
+                if(hlCoroutine != null)
+                    StopCoroutine(hlCoroutine);
+                StartCoroutine(HighLight()); 
+            }
+            else if(other.tag == "PushAttack")
+            {
+                health.Value -= 2;
+                if(health.Value <= 0)
+                    return;
+
+                if(hlCoroutine != null)
+                    StopCoroutine(hlCoroutine);
+                StartCoroutine(HighLight()); 
+            }
+            else if(other.tag == "OndeAttack")
+            {
+                health.Value -= 5;
+                if(health.Value <= 0)
+                    return;
+                   
                 if(hlCoroutine != null)
                     StopCoroutine(hlCoroutine);
                 StartCoroutine(HighLight()); 

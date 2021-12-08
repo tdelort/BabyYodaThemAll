@@ -9,23 +9,23 @@ public class Force : MonoBehaviour
     private float time;
     private int height;
 
-    // Update is called once per frame
-    void Update()
-    {
-        time += Time.deltaTime;
-        transform.localPosition = new Vector3(0, 0, transform.localPosition.z + Time.deltaTime * speed);
-    }
-
     private void OnEnable()
     {
+        StartCoroutine(Move());
+    }
+
+    IEnumerator Move()
+    {
         transform.localPosition = new Vector3(0, 0, 0);
+        while (true)
+        {
+            yield return null;
+            transform.localPosition = new Vector3(0, 0, transform.localPosition.z + Time.deltaTime * speed);
+        }
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player"))
-        {
-            //faire les dégâts
-        }
+
     }
 }

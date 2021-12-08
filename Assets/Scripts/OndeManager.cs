@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 
-public class OndeManager : NetworkBehaviour
+public class OndeManager : MonoBehaviour
 {
     [SerializeField] private Onde onde1 = null;
     [SerializeField] private Onde onde2 = null;
@@ -13,13 +13,10 @@ public class OndeManager : NetworkBehaviour
 
     private void OnEnable()
     {
-        if(NetworkManager.Singleton.IsServer)
-        {
-            onde1.gameObject.SetActive(false);
-            onde2.gameObject.SetActive(false);
-            onde3.gameObject.SetActive(false);
-            StartCoroutine(LaunchWaves());
-        }
+        onde1.gameObject.SetActive(false);
+        onde2.gameObject.SetActive(false);
+        onde3.gameObject.SetActive(false);
+        StartCoroutine(LaunchWaves());
     }
 
     private IEnumerator LaunchWaves()

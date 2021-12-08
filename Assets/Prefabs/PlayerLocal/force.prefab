@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 3952506783396190810}
   m_Layer: 0
   m_Name: force
-  m_TagString: Untagged
+  m_TagString: PushAttack
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

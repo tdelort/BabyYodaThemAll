@@ -237,6 +237,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: onde1
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 6acecb3f2e405674f9c82de43782ca4c, type: 3}
+      propertyPath: m_TagString
+      value: OndeAttack
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6acecb3f2e405674f9c82de43782ca4c, type: 3}
 --- !u!1 &375844744292226610 stripped
@@ -308,6 +312,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: onde3
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 6acecb3f2e405674f9c82de43782ca4c, type: 3}
+      propertyPath: m_TagString
+      value: OndeAttack
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6acecb3f2e405674f9c82de43782ca4c, type: 3}
 --- !u!1 &4670524846304468108 stripped
@@ -378,6 +386,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 6acecb3f2e405674f9c82de43782ca4c, type: 3}
       propertyPath: m_Name
       value: onde2
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 6acecb3f2e405674f9c82de43782ca4c, type: 3}
+      propertyPath: m_TagString
+      value: OndeAttack
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6acecb3f2e405674f9c82de43782ca4c, type: 3}

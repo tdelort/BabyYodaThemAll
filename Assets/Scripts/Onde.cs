@@ -22,12 +22,4 @@ public class Onde : MonoBehaviour
         time = 0;
         transform.localPosition = new Vector3(0, 0, 0);
     }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.CompareTag("Ennemi"))
-        {
-            //faire les dégâts
-        }
-    }
 }

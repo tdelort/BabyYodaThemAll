@@ -1,5 +1,7 @@
+using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Player : NetworkBehaviour
 {
@@ -7,6 +9,41 @@ public class Player : NetworkBehaviour
 
     [SerializeField] private GameObject cursorPrefab;
     GameObject cursor;
+
+    [SerializeField] private Renderer rend;
+    [SerializeField] Material hitMat;
+    Material oldMat;
+    private NetworkVariable<bool> highlighted = new NetworkVariable<bool>(false);
+    protected const int maxHealth = 30;
+    private NetworkVariable<int> health = new NetworkVariable<int>(maxHealth);
+    private Coroutine hlCoroutine;
+    [SerializeField] Slider healthBar;
+
+    void Start()
+    {
+        Debug.Assert(rend != null);
+        Debug.Assert(hitMat != null);
+        oldMat = rend.material;
+        highlighted.OnValueChanged += OnHighlighted;
+        healthBar.value = 1;
+        health.OnValueChanged += OnHealth;
+    }
+
+    private void OnHealth(int before, int after)
+    {
+        if(health.Value <= 0)
+        {
+            // Bruh hardcore
+            if(NetworkManager.Singleton.IsServer)
+            {
+                GetComponent<NetworkObject>().Despawn();
+            }
+            gameObject.SetActive(false);
+        }
+
+        healthBar.value = (float)health.Value / (float)maxHealth;
+    }
+
     public override void OnNetworkSpawn()
     {
         Debug.Log("Player started");
@@ -127,4 +164,30 @@ public class Player : NetworkBehaviour
         transform.rotation = rotation;
     }
 
+    //######### TAKING DAMAGE ##########
+    
+    public void TakeDamage(int damage)
+    {
+        Debug.Log("Player.TakeDamage");
+        health.Value -= damage;
+        if(hlCoroutine != null)
+            StopCoroutine(hlCoroutine);
+        StartCoroutine(HighLight()); 
+    }
+
+    private IEnumerator HighLight()
+    {
+        highlighted.Value = true;
+        yield return new WaitForSeconds(0.1f);
+        highlighted.Value = false;
+    }
+
+    private void OnHighlighted(bool before, bool after)
+    {
+        //Debug.LogError("Highlighted: " + after);
+        if (after)
+            rend.material = hitMat;
+        else
+            rend.material = oldMat;
+    }
 }
