@@ -16,16 +16,11 @@ public class Force : MonoBehaviour
 
     IEnumerator Move()
     {
-        transform.localPosition = new Vector3(0, 0, 0);
+        transform.localPosition = new Vector3(0, 0.5f, 0);
         while (true)
         {
             yield return null;
-            transform.localPosition = new Vector3(0, 0, transform.localPosition.z + Time.deltaTime * speed);
+            transform.localPosition = new Vector3(0, 0.5f, transform.localPosition.z + Time.deltaTime * speed);
         }
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
-
     }
 }

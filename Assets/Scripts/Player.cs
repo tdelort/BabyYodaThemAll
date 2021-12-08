@@ -19,6 +19,15 @@ public class Player : NetworkBehaviour
     private Coroutine hlCoroutine;
     [SerializeField] Slider healthBar;
 
+    protected NetworkVariable<bool> isUsingAction1 = new NetworkVariable<bool>(false);
+    protected NetworkVariable<bool> isUsingAction2 = new NetworkVariable<bool>(false);
+    protected NetworkVariable<bool> isUsingAction3 = new NetworkVariable<bool>(false);
+    protected NetworkVariable<bool> isUsingAction4 = new NetworkVariable<bool>(false);
+
+    [SerializeField] private Image action1cooldown;
+    [SerializeField] private Image action2cooldown;
+    [SerializeField] private Image action3cooldown;
+
     void Start()
     {
         Debug.Assert(rend != null);
@@ -27,6 +36,25 @@ public class Player : NetworkBehaviour
         highlighted.OnValueChanged += OnHighlighted;
         healthBar.value = 1;
         health.OnValueChanged += OnHealth;
+
+        isUsingAction1.OnValueChanged += OnAction1;
+        isUsingAction2.OnValueChanged += OnAction2;
+        isUsingAction3.OnValueChanged += OnAction3;
+    }
+
+    private void OnAction1(bool before, bool after)
+    {
+        action1cooldown.color = after ? Color.red : Color.green;
+    }
+
+    private void OnAction2(bool before, bool after)
+    {
+        action2cooldown.color = after ? Color.red : Color.green;
+    }
+
+    private void OnAction3(bool before, bool after)
+    {
+        action3cooldown.color = after ? Color.red : Color.green;
     }
 
     private void OnHealth(int before, int after)
@@ -75,7 +103,9 @@ public class Player : NetworkBehaviour
             Vector3 movement = input * speed * Time.deltaTime;
 
             // Rotation
-            Quaternion rotation = ComputeRotation();
+            Quaternion rotation = transform.rotation;
+            if(!isUsingAction3.Value)
+                rotation = ComputeRotation();
 
             TransformPlayerServerRpc(movement, rotation);
 

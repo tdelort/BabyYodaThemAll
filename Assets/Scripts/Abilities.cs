@@ -45,7 +45,7 @@ public class Abilities : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             Debug.Log("attack");
-            StartCoroutine(sabreBasique.Attack());
+            //StartCoroutine(sabreBasique.Attack());
         }
 
         if (Input.GetMouseButtonDown(1))

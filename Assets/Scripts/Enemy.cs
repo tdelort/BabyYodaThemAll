@@ -86,39 +86,38 @@ public class Enemy : NetworkBehaviour
         {
 
             // ###### MOVEMENTS ######
-            if (targets.Length == 0) {
-                targets = GameObject.FindObjectsOfType<Player>();
+            targets = GameObject.FindObjectsOfType<Player>();
+            if(targets.Length <= 0)
+                return;
+
+            agent.destination = targets[0].transform.position;
+
+            Vector3 worldDeltaPosition = agent.nextPosition - transform.position;
+
+            // Map 'worldDeltaPosition' to local space
+            float dx = Vector3.Dot (transform.right, worldDeltaPosition);
+            float dy = Vector3.Dot (transform.forward, worldDeltaPosition);
+            Vector2 deltaPosition = new Vector2 (dx, dy);
+
+            // Low-pass filter the deltaMove
+            float smooth = Mathf.Min(1.0f, Time.deltaTime/0.15f);
+            smoothDeltaPosition = Vector2.Lerp (smoothDeltaPosition, deltaPosition, smooth);
+
+            // Update velocity if time advances
+            if (Time.deltaTime > 1e-5f) {
+                velocity = smoothDeltaPosition / Time.deltaTime;
             }
-            else {
-                agent.destination = targets[0].transform.position;
 
-                Vector3 worldDeltaPosition = agent.nextPosition - transform.position;
-
-                // Map 'worldDeltaPosition' to local space
-                float dx = Vector3.Dot (transform.right, worldDeltaPosition);
-                float dy = Vector3.Dot (transform.forward, worldDeltaPosition);
-                Vector2 deltaPosition = new Vector2 (dx, dy);
-
-                // Low-pass filter the deltaMove
-                float smooth = Mathf.Min(1.0f, Time.deltaTime/0.15f);
-                smoothDeltaPosition = Vector2.Lerp (smoothDeltaPosition, deltaPosition, smooth);
-
-                // Update velocity if time advances
-                if (Time.deltaTime > 1e-5f) {
-                    velocity = smoothDeltaPosition / Time.deltaTime;
-                }
-
-                if (agent.remainingDistance > agent.stoppingDistance) {
-                    animator.Play(moveName, -1);
-                    //animator.SetFloat ("velx", velocity.x);
-                    //animator.SetFloat ("vely", velocity.y);
-                } else {
-                    if(!isAttacking)
-                    {
-                        animator.Play(attackName, -1);
-                        // HANDLE ATTACK HERE
-                        StartCoroutine(Attack());
-                    }
+            if (agent.remainingDistance > agent.stoppingDistance) {
+                animator.Play(moveName, -1);
+                //animator.SetFloat ("velx", velocity.x);
+                //animator.SetFloat ("vely", velocity.y);
+            } else {
+                if(!isAttacking)
+                {
+                    animator.Play(attackName, -1);
+                    // HANDLE ATTACK HERE
+                    StartCoroutine(Attack());
                 }
             }
         }
@@ -128,7 +127,7 @@ public class Enemy : NetworkBehaviour
     {
         isAttacking = true;
         yield return new WaitForSeconds(0.2f);
-        Physics.SphereCast(transform.position, 0.5f, transform.forward, out RaycastHit hit, 1.0f);
+        Physics.SphereCast(transform.position, 1f, transform.forward, out RaycastHit hit, 1.0f);
         if(hit.collider != null)
         {
             if(hit.collider.gameObject.tag == "Player")

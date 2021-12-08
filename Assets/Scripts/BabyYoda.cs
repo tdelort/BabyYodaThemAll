@@ -15,10 +15,9 @@ public class BabyYoda : Player
 
     // ACTION 3
     [SerializeField] private GameObject pushObject;
+    // ACTION 4
+    [SerializeField] private GameObject basicObject;
 
-    NetworkVariable<bool> isUsingAction1 = new NetworkVariable<bool>(false);
-    NetworkVariable<bool> isUsingAction2 = new NetworkVariable<bool>(false);
-    NetworkVariable<bool> isUsingAction3 = new NetworkVariable<bool>(false);
     NetworkVariable<bool> hideSabre = new NetworkVariable<bool>(false);
 
     public override void OnNetworkSpawn()
@@ -192,8 +191,54 @@ public class BabyYoda : Player
 
     // ############ ACTION 4 ############
     // Casual attack : Sword slash
+    protected override void InitAction4()
+    {
+        Debug.Assert(basicObject != null);
+        basicObject.SetActive(false);
+    }
+
     override protected void Action4()
     {
         Debug.Log("BabyYoda.Action4");
+        if(isUsingAction4.Value)
+            return;
+
+        if(IsLocalPlayer)
+        {
+            Action4ServerRpc();
+        }
+    }
+
+    [ServerRpc]
+    public void Action4ServerRpc()
+    {
+        Debug.Log("BabyYoda.Action4ServerRpc");
+        StartCoroutine(Action4Coroutine());
+    }
+
+    [ClientRpc]
+    public void SetActiveBasicClientRpc(bool active)
+    {
+        basicObject.SetActive(active);
+    }
+
+    // Only in server
+    private IEnumerator Action4Coroutine()
+    {
+        Debug.Log("BabyYoda.Action4Coroutine");
+        isUsingAction4.Value = true;
+        hideSabre.Value = true;
+        basicObject.SetActive(true);
+        SetActiveBasicClientRpc(true);
+
+        yield return new WaitForSeconds(0.5f);
+
+        basicObject.SetActive(false);
+        hideSabre.Value = false;
+        SetActiveBasicClientRpc(false);
+
+        // Add aditional delay to prevent spamming here
+
+        isUsingAction4.Value = false;
     }
 }
