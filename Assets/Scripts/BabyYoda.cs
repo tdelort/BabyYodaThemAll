@@ -82,7 +82,7 @@ public class BabyYoda : Player
         hideSabre.Value = false;
 
         // Add aditional delay to prevent spamming here
-        yield return new WaitForSeconds(0.1f);
+        yield return new WaitForSeconds(2f);
 
         isUsingAction1.Value = false;
     }
@@ -134,6 +134,7 @@ public class BabyYoda : Player
         SetActiveOndeClientRpc(false);
 
         // Add aditional delay to prevent spamming here
+        yield return new WaitForSeconds(10f);
 
         isUsingAction2.Value = false;
     }
@@ -185,8 +186,9 @@ public class BabyYoda : Player
         SetActivePushClientRpc(false);
 
         // Add aditional delay to prevent spamming here
-
+        yield return new WaitForSeconds(5f);
         isUsingAction3.Value = false;
+
     }
 
     // ############ ACTION 4 ############

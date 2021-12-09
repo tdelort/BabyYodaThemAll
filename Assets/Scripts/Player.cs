@@ -136,8 +136,8 @@ public class Player : NetworkBehaviour
 
             // Rotation
             Quaternion rotation = transform.rotation;
-            if(!isUsingAction3.Value)
-                rotation = ComputeRotation();
+            //if(!isUsingAction3.Value)
+            rotation = ComputeRotation();
 
             TransformPlayerServerRpc(movement, rotation);
 
