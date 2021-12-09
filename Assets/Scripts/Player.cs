@@ -46,7 +46,6 @@ public class Player : NetworkBehaviour
 
         kills.OnValueChanged += OnKills;
         score.OnValueChanged += OnScore;
-        id.OnValueChanged = (uint before, uint after) => idText.text = after.ToString("D1");
     } 
 
     private void OnAction1(bool before, bool after)
@@ -91,6 +90,7 @@ public class Player : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        id.OnValueChanged = (uint before, uint after) => idText.text = after.ToString("D1");
         Debug.Log("Player started");
         if (IsLocalPlayer)
         {
