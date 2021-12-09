@@ -9,6 +9,8 @@ TagManager:
   - SabreAttack
   - OndeAttack
   - PushAttack
+  - PlayerLootZone
+  - Enemy
   layers:
   - Default
   - TransparentFX

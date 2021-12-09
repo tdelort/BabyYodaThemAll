@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Netcode;
 
-public class Onde : MonoBehaviour
+public class Onde : NetworkBehaviour
 {
     public float growSpeed;
 
@@ -21,5 +22,19 @@ public class Onde : MonoBehaviour
         transform.localScale = new Vector3(100, 100, 1000);
         time = 0;
         transform.localPosition = new Vector3(0, 0, 0);
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        Player nobj = GetComponentInParent<Player>();
+        if(nobj.IsLocalPlayer)
+        {
+            if (other.tag == "Enemy")
+            {
+                Enemy enemy = other.GetComponent<Enemy>();
+                if(enemy != null)
+                    enemy.TakeDamage(2, nobj.id.Value);
+            }
+        }
     }
 }

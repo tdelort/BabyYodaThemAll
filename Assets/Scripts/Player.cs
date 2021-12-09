@@ -21,6 +21,7 @@ public class Player : NetworkBehaviour
     private Coroutine hlCoroutine;
     [SerializeField] Slider healthBar;
 
+    public NetworkVariable<uint> id = new NetworkVariable<uint>();
     protected NetworkVariable<bool> isUsingAction1 = new NetworkVariable<bool>(false);
     protected NetworkVariable<bool> isUsingAction2 = new NetworkVariable<bool>(false);
     protected NetworkVariable<bool> isUsingAction3 = new NetworkVariable<bool>(false);
@@ -32,6 +33,7 @@ public class Player : NetworkBehaviour
 
     [SerializeField] private Text killsText;
     [SerializeField] private Text scoreText;
+    [SerializeField] private Text idText;
 
     void Start()
     {
@@ -44,6 +46,7 @@ public class Player : NetworkBehaviour
 
         kills.OnValueChanged += OnKills;
         score.OnValueChanged += OnScore;
+        id.OnValueChanged = (uint before, uint after) => idText.text = after.ToString("D1");
     } 
 
     private void OnAction1(bool before, bool after)
@@ -98,6 +101,7 @@ public class Player : NetworkBehaviour
             cameraController.offset = new Vector3(0, 15, -15);
             cursor = Instantiate(cursorPrefab);
 
+
             action1cooldown.gameObject.SetActive(true);
             action2cooldown.gameObject.SetActive(true);
             action3cooldown.gameObject.SetActive(true);
@@ -107,12 +111,19 @@ public class Player : NetworkBehaviour
         }
 
 
+        if(NetworkManager.Singleton.IsServer)
+        {
+            id.Value = GameManager.GetNextPlayerId();
+        }
+
+
         InitAction1();
         InitAction2();
         InitAction3();
         InitAction4();
 
     }
+
 
     // Update is called once per frame
     void Update()
@@ -245,12 +256,23 @@ public class Player : NetworkBehaviour
     //########## GAINING POINTS ##########
     public void AddKill()
     {
-        Debug.Log("Player.AddScore");
+        Debug.Log("Player.AddKill");
+        if(!NetworkManager.Singleton.IsServer)
+        {
+            Debug.LogError("Don't call this on client side to avoid conflicts !");
+            return;
+        }
         kills.Value++;
     }
 
     public void AddScore()
     {
+        Debug.Log("Player.AddScore");
+        if(!NetworkManager.Singleton.IsServer)
+        {
+            Debug.LogError("Don't call this on client side to avoid conflicts !");
+            return;
+        }
         score.Value++;
     }
 }

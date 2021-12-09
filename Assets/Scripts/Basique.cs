@@ -37,4 +37,18 @@ public class Basique : NetworkBehaviour
         yield return new WaitForSeconds(0.2f);
         right = false;
     }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        Player nobj = GetComponentInParent<Player>();
+        if(nobj.IsLocalPlayer)
+        {
+            if (other.tag == "Enemy")
+            {
+                Enemy enemy = other.GetComponent<Enemy>();
+                if(enemy != null)
+                    enemy.TakeDamage(1, nobj.id.Value);
+            }
+        }
+    }
 }

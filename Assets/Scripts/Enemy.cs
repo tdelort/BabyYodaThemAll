@@ -32,6 +32,9 @@ public class Enemy : NetworkBehaviour
     private String moveName;
     private String attackName;
     private String dieName;
+
+    // Only used in server side 
+    private bool isDead = false;
     
 
     // Start is called before the first frame update
@@ -177,34 +180,36 @@ public class Enemy : NetworkBehaviour
             bodyRenderer.material = originalMaterial;
     }
 
-    public void OnTriggerEnter(Collider other)
+    public void TakeDamage(int damage, uint id)
     {
-        // Gestion des collisions entre les attaques et les ennemis
-        // Dans le serveur pour éviter de faire des collisions 
-        // sur des ennemis qui sont détruits ?
-        if(NetworkManager.Singleton.IsServer)
+        TakeDamageServerRpc(damage, id);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void TakeDamageServerRpc(int damage, uint attackerId)
+    {
+        if(isDead) // Avoid Conflicts
+            return;
+
+        health.Value -= damage;
+
+        if(health.Value <= 0)
         {
-            if (other.tag == "PlayerAttack")
-                health.Value--;
-            else if(other.tag == "SabreAttack")
-                health.Value -= 2;
-            else if(other.tag == "PushAttack")
-                health.Value -= 2;
-            else if(other.tag == "OndeAttack")
-                health.Value -= 5;
-            else
-                return;
-
-            if(health.Value <= 0)
+            foreach(var player in FindObjectsOfType<Player>())
             {
-                other.gameObject.GetComponentInParent<Player>().AddKill();
-                return;
+                if(player.id.Value == attackerId)
+                {
+                    player.AddKill();
+                    isDead = true;
+                    return;
+                }
             }
-
-            if(hlCoroutine != null)
-                StopCoroutine(hlCoroutine);
-            StartCoroutine(HighLight()); 
+            return;
         }
+        
+        if(hlCoroutine != null)
+            StopCoroutine(hlCoroutine);
+        StartCoroutine(HighLight()); 
     }
 
     private IEnumerator HighLight()

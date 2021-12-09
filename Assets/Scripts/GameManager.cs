@@ -1,8 +1,32 @@
 using Unity.Netcode;
 using UnityEngine;
 
-public class GameManager : MonoBehaviour
+public class GameManager : NetworkBehaviour
 {
+    public static GameManager Singleton;
+
+    public NetworkVariable<uint> maxid = new NetworkVariable<uint>(1);
+
+    private void Awake()
+    {
+        if (Singleton == null)
+        {
+            Singleton = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
+    public static uint GetNextPlayerId()
+    {
+        Singleton.maxid.Value += 1;
+        Debug.LogError("Player id: " + Singleton.maxid.Value);
+        return Singleton.maxid.Value;
+    }
+
     void OnGUI()
     {
         GUILayout.BeginArea(new Rect(10, 10, 300, 300));
