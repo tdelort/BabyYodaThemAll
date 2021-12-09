@@ -43,7 +43,7 @@ public class BabyYoda : Player
     override protected void Action1()
     {
         Debug.Log("BabyYoda.Action1");
-        if(isUsingAction1.Value)
+        if(isUsingAction1.Value || hideSabre.Value)
             return;
 
         if(IsLocalPlayer)
@@ -202,7 +202,7 @@ public class BabyYoda : Player
     override protected void Action4()
     {
         Debug.Log("BabyYoda.Action4");
-        if(isUsingAction4.Value)
+        if(isUsingAction4.Value || hideSabre.Value)
             return;
 
         if(IsLocalPlayer)
