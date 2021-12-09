@@ -7,8 +7,8 @@ public class Loot : MonoBehaviour
 {
     public void OnTriggerEnter(Collider other) {
         if (NetworkManager.Singleton.IsServer) {
-            if (other.tag == "Player") {
-                other.GetComponent<Player>().AddScore();
+            if (other.tag == "PlayerLootZone") {
+                other.GetComponentInParent<Player>().AddScore();
                 GetComponent<NetworkObject>().Despawn();
             }
         }

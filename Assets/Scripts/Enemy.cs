@@ -99,7 +99,8 @@ public class Enemy : NetworkBehaviour
             if(targets.Length <= 0)
                 return;
 
-            float smallest = 100000f;
+            target = targets[0];
+            float smallest = Vector3.Distance(transform.position, target.transform.position);
             foreach (var currentTarget in targets) {
                 float dist = Vector3.Distance(transform.position, currentTarget.transform.position);
                 if (dist < smallest) {
