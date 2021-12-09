@@ -9,6 +9,7 @@ public class Enemy : NetworkBehaviour
 {   
     // Highlight and taking damages
     [SerializeField] Material hitMaterial;
+    [SerializeField] GameObject lootPrefab;
     Material originalMaterial;
     private NetworkVariable<bool> highlighted = new NetworkVariable<bool>(false);
     private NetworkVariable<int> health = new NetworkVariable<int>(2);
@@ -24,8 +25,10 @@ public class Enemy : NetworkBehaviour
     public int enemyType;
 
     private Player[] targets;
+    private Player target;
     private Vector2 smoothDeltaPosition = Vector2.zero;
     private Vector2 velocity = Vector2.zero;
+    private String enemyName;
     private String moveName;
     private String attackName;
     private String dieName;
@@ -47,6 +50,7 @@ public class Enemy : NetworkBehaviour
             if(NetworkManager.Singleton.IsServer)
                 health.Value = 2;
             maxHealth = 2;
+            enemyName = "Frog";
             moveName = "Jump";
             attackName = "Tongue";
             dieName = "Smashed";
@@ -54,6 +58,7 @@ public class Enemy : NetworkBehaviour
             if(NetworkManager.Singleton.IsServer)
                 health.Value = 5;
             maxHealth = 5;
+            enemyName = "Spider";
             moveName = "walk";
             attackName = "attack";
             dieName = "die";
@@ -71,6 +76,10 @@ public class Enemy : NetworkBehaviour
         {
             if(NetworkManager.Singleton.IsServer)
             {
+                Vector3 pos = transform.position;
+                var loot = Instantiate(lootPrefab, pos, Quaternion.identity);
+                loot.GetComponent<NetworkObject>().Spawn();
+                
                 GetComponent<NetworkObject>().Despawn();
             }
             gameObject.SetActive(false);
@@ -90,8 +99,17 @@ public class Enemy : NetworkBehaviour
             if(targets.Length <= 0)
                 return;
 
-            agent.destination = targets[0].transform.position;
+            float smallest = 100000f;
+            foreach (var currentTarget in targets) {
+                float dist = Vector3.Distance(transform.position, currentTarget.transform.position);
+                if (dist < smallest) {
+                    smallest = dist;
+                    target = currentTarget;
+                }
+            }
 
+            agent.destination = target.transform.position;
+            
             Vector3 worldDeltaPosition = agent.nextPosition - transform.position;
 
             // Map 'worldDeltaPosition' to local space

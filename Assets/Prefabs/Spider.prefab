@@ -264,9 +264,9 @@ CapsuleCollider:
   m_Material: {fileID: 0}
   m_IsTrigger: 1
   m_Enabled: 1
-  m_Radius: 3
-  m_Height: 6
-  m_Direction: 0
+  m_Radius: 2
+  m_Height: 5
+  m_Direction: 2
   m_Center: {x: 0, y: 1, z: 0.3}
 --- !u!195 &848170519657244846
 NavMeshAgent:
@@ -303,6 +303,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hitMaterial: {fileID: 2100000, guid: f6d49803ed3557d45bad994cb52be1af, type: 2}
+  lootPrefab: {fileID: 8458313708819861869, guid: 7ad867cfe89962a47b36f0fdcc3d3e25, type: 3}
   bodyRenderer: {fileID: 848170519670842377}
   healthBar: {fileID: 6125687602977227020}
   agent: {fileID: 848170519657244846}

@@ -644,7 +644,7 @@ MonoBehaviour:
   action2cooldown: {fileID: 5770291489595708777}
   action3cooldown: {fileID: 3583137055614198845}
   killsText: {fileID: 6777868456487863870}
-  itemsText: {fileID: 1706436888532258369}
+  scoreText: {fileID: 1706436888532258369}
   cosmeticSabre: {fileID: 9197044480005319789}
   sabreAttackObject: {fileID: 6798697442915402720}
   ondeObject: {fileID: 3507290172556055705}

@@ -17,6 +17,7 @@ public class Player : NetworkBehaviour
     protected const int maxHealth = 30;
     private NetworkVariable<int> health = new NetworkVariable<int>(maxHealth);
     private NetworkVariable<uint> kills = new NetworkVariable<uint>();
+    private NetworkVariable<uint> score = new NetworkVariable<uint>();
     private Coroutine hlCoroutine;
     [SerializeField] Slider healthBar;
 
@@ -30,7 +31,7 @@ public class Player : NetworkBehaviour
     [SerializeField] private Image action3cooldown;
 
     [SerializeField] private Text killsText;
-    [SerializeField] private Text itemsText;
+    [SerializeField] private Text scoreText;
 
     void Start()
     {
@@ -42,6 +43,7 @@ public class Player : NetworkBehaviour
         health.OnValueChanged += OnHealth;
 
         kills.OnValueChanged += OnKills;
+        score.OnValueChanged += OnScore;
     } 
 
     private void OnAction1(bool before, bool after)
@@ -77,6 +79,11 @@ public class Player : NetworkBehaviour
     private void OnKills(uint before, uint after)
     {   
         killsText.text = after.ToString("D4");
+    }
+
+    private void OnScore(uint before, uint after)
+    {
+        scoreText.text = after.ToString("D4");
     }
 
     public override void OnNetworkSpawn()
@@ -240,5 +247,10 @@ public class Player : NetworkBehaviour
     {
         Debug.Log("Player.AddScore");
         kills.Value++;
+    }
+
+    public void AddScore()
+    {
+        score.Value++;
     }
 }
